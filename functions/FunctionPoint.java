@@ -42,18 +42,19 @@ public class FunctionPoint implements Serializable {
     public String toString() {
         return "(" + x + "; " + y + ")";
     }
-
+    
     // Переопределение метода equals()
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
+    
         FunctionPoint that = (FunctionPoint) o;
-
+    
         // Сравнение с учетом точности чисел с плавающей точкой
-        return Double.compare(that.x, x) == 0 &&
-                Double.compare(that.y, y) == 0;
+        private static final double EPS = Math.ulp(1.0);
+        return Math.abs(that.x - x) < EPS && 
+               Math.abs(that.y - y) < EPS;
     }
 
     // Переопределение метода hashCode()
