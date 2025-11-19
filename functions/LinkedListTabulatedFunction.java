@@ -61,12 +61,16 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         if (points == null || points.length < 2)
             throw new IllegalArgumentException("массив точек пуст или содержит меньше двух элементов");
 
+        // Проверка сортировки по X
+        for (int i = 1; i < points.length; i++) {
+            if (points[i].getX() <= points[i - 1].getX())
+                throw new IllegalArgumentException("точки не упортированы по X");
+        }
+
         head.next = head.prev = head;
         pointsCount = 0;
 
         for (int i = 0; i < points.length; i++) {
-            if (i > 0 && points[i].getX() <= points[i - 1].getX())
-                throw new IllegalArgumentException("точки не упорядочены по X");
             addNodeToTail().point = new FunctionPoint(points[i]);
         }
     }
@@ -244,7 +248,6 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         return sb.toString();
     }
 
-    // Переопределение метода equals()
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -255,18 +258,24 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
         // Проверка количества точек
         if (this.getPointsCount() != that.getPointsCount()) return false;
 
-        // Оптимизация для LinkedListTabulatedFunction
-        if (o instanceof LinkedListTabulatedFunction) {
-            LinkedListTabulatedFunction other = (LinkedListTabulatedFunction) o;
-            FunctionNode thisCurrent = this.head.next;
-            FunctionNode otherCurrent = other.head.next;
-
-            while (thisCurrent != this.head && otherCurrent != other.head) {
-                if (!thisCurrent.point.equals(otherCurrent.point)) {
+        // Оптимизация для ArrayTabulatedFunction
+        if (o instanceof ArrayTabulatedFunction) {
+            ArrayTabulatedFunction other = (ArrayTabulatedFunction) o;
+            for (int i = 0; i < pointsCount; i++) {
+                // Используем getPoint() для обеих функций
+                if (!this.getPoint(i).equals(other.getPoint(i))) {
                     return false;
                 }
-                thisCurrent = thisCurrent.next;
-                otherCurrent = otherCurrent.next;
+            }
+        }
+        // Оптимизация для LinkedListTabulatedFunction
+        else if (o instanceof LinkedListTabulatedFunction) {
+            LinkedListTabulatedFunction other = (LinkedListTabulatedFunction) o;
+            // Используем прямое сравнение узлов через приватный метод getNodeByIndex()
+            for (int i = 0; i < pointsCount; i++) {
+                if (!this.getNodeByIndex(i).point.equals(other.getNodeByIndex(i).point)) {
+                    return false;
+                }
             }
         } else {
             // Общий случай для любого TabulatedFunction
@@ -281,7 +290,6 @@ public class LinkedListTabulatedFunction implements TabulatedFunction, Serializa
 
         return true;
     }
-
     // Переопределение метода hashCode()
     @Override
     public int hashCode() {
