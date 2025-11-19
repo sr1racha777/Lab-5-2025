@@ -219,7 +219,6 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Externalizable
         return sb.toString();
     }
 
-    // Переопределение метода equals()
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -234,7 +233,18 @@ public class ArrayTabulatedFunction implements TabulatedFunction, Externalizable
         if (o instanceof ArrayTabulatedFunction) {
             ArrayTabulatedFunction other = (ArrayTabulatedFunction) o;
             for (int i = 0; i < pointsCount; i++) {
-                if (!points[i].equals(other.points[i])) {
+                // Используем getPoint() вместо прямого доступа к points[i]
+                if (!this.getPoint(i).equals(other.getPoint(i))) {
+                    return false;
+                }
+            }
+        }
+        // Оптимизация для LinkedListTabulatedFunction
+        else if (o instanceof LinkedListTabulatedFunction) {
+            LinkedListTabulatedFunction other = (LinkedListTabulatedFunction) o;
+            for (int i = 0; i < pointsCount; i++) {
+                // Используем getPoint() для обеих функций
+                if (!this.getPoint(i).equals(other.getPoint(i))) {
                     return false;
                 }
             }
